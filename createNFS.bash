@@ -48,7 +48,7 @@ disk-IMAGE () {
 
 
 create-VM () {
-  vmUID=$(xe vm-install new-name-label=nextcloud new-name-description="NFS-Server VM" template-name-label="Other install media")
+  vmUID=$(xe vm-install new-name-label=nfsserver new-name-description="NFS-Server VM" template-name-label="Other install media")
   xe vm-memory-limits-set static-min=1GiB static-max=2GiB dynamic-min=1GiB dynamic-max=2GiB uuid=$vmUID
   xe vm-param-set uuid=$vmUID VCPUs-max=1 VCPUs-at-startup=1
   xe vm-param-set uuid=$vmUID HVM-boot-params:"firmware=uefi"
@@ -64,7 +64,7 @@ create-VM () {
     let N++
   done
   
-  xe vm-cd-add cd-name=nextcloud_combustion.iso device=1 uuid=$vmUID
+  xe vm-cd-add cd-name=nfsshare_combustion.iso device=1 uuid=$vmUID
   xe vm-cd-add cd-name=guest-tools.iso device=2 uuid=$vmUID
   
   xe vif-create network-uuid=$defaultNET vm-uuid=$vmUID device=0
@@ -82,7 +82,7 @@ cleanup () {
   yum remove -y pv && yum autoremove -y
   
   xe vm-shutdown uuid=$vmUID
-  xe vm-cd-remove cd-name=nextcloud_combustion.iso uuid=$vmUID
+  xe vm-cd-remove cd-name=nfsshare_combustion.iso uuid=$vmUID
   xe vm-cd-remove cd-name=guest-tools.iso uuid=$vmUID
 }
 

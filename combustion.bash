@@ -3,16 +3,16 @@
 
 echo 'root:HASHchangeME' | chpasswd -e
 echo 'nfsshare' > /etc/hostname
-
-zypper in -y nfs-kernel-server parted
-systemctl enable nfs-server
 mount /dev/xvda4 /var
-
-echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
 mount /dev/sr1 /mnt
 zypper rm -yu xen-tools-domU
 /mnt/Linux/install.sh -d sles -m 15 -n
+
+zypper in -y nfs-kernel-server parted
+systemctl enable nfs-server
+
+echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
 wipefs -f -a /dev/xvdd /dev/xvde
 sleep 1

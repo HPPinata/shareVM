@@ -39,11 +39,10 @@ combustion-ISO () {
 }
 
 
-disk-IMAGE () {
-  wget https://download.opensuse.org/tumbleweed/appliances/openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2
-  yum install -y qemu-img --enablerepo base
-  qemu-img convert -O raw openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2 SUSE-MicroOS.raw
-  yum remove -y qemu-img && yum autoremove -y
+disk-CLONE () {
+  snUID=$(xe snapshot-list name-label=orchestra_preinstall | grep uuid | awk -F ': ' {'print $2'})
+  vdiUID_src=$(xe snapshot-disk-list uuid=$snUID | grep -A 1 VDI | grep uuid | awk -F ': ' {'print $2'})
+  vdiUID=$(xe vdi-clone uuid=$vdiUID_src new-name-label=nfsshare)
 }
 
 
@@ -53,9 +52,7 @@ create-VM () {
   xe vm-param-set uuid=$vmUID VCPUs-max=1 VCPUs-at-startup=1
   xe vm-param-set uuid=$vmUID HVM-boot-params:"firmware=uefi"
   
-  xe vm-disk-add disk-size=32GiB device=0 uuid=$vmUID
-  vdiUID=$(xe vm-disk-list uuid=$vmUID | grep -A 1 VDI | grep uuid | awk -F ': ' {'print $2'})
-  xe vdi-import uuid=$vdiUID filename=SUSE-MicroOS.raw format=raw
+  xe vbd-create device=0 vm-uuid=$vmUID vdi-uuid=$vdiUID
   
   vdiUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
   N=3
@@ -69,7 +66,6 @@ create-VM () {
   
   xe vif-create network-uuid=$defaultNET vm-uuid=$vmUID device=0
   
-  xe pool-param-set uuid=$(xe pool-list | grep uuid | awk -F ': ' {'print $2'}) other-config:auto_poweron=true
   xe vm-param-set uuid=$vmUID other-config:auto_poweron=true
 }
 
@@ -88,7 +84,7 @@ cleanup () {
 
 add-SR
 combustion-ISO
-disk-IMAGE
+disk-CLONE
 create-VM
 
 xe vm-start uuid=$vmUID

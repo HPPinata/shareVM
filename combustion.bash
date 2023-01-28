@@ -27,7 +27,10 @@ mount /dev/xvdd1 /var/nfsshare
 { echo; echo '/dev/xvdd1  /var/nfsshare  btrfs  nofail  0  2'; } >> /etc/fstab
 cat /etc/fstab
 
-mkdir -p /var/nfsshare/vm
-echo '/var/nfsshare/vm  *(rw)' >> /etc/exports
+mkdir -p /var/nfsshare/xen
+echo '/var/nfsshare/xen  *(rw)' >> /etc/exports
+mkdir -p /var/nfsshare/xen/sr
+mkdir -p /var/nfsshare/xen/iso
+
 chown -R root:root /var/nfsshare
 chmod -R 777 /var/nfsshare

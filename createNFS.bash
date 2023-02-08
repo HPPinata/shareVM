@@ -11,8 +11,8 @@ defaultNET=$(xe network-list bridge=xenbr0 | grep uuid | awk -F ': ' {'print $2'
 
 add-SR () {
   mkdir /srv/pass_drives
-  ln -s "/dev/sda" /srv/pass_drives/
-  ln -s "/dev/sdb" /srv/pass_drives/
+  ln -s /dev/sda /srv/pass_drives/
+  ln -s /dev/sdb /srv/pass_drives/
   
   passSR=$(xe sr-create name-label=Pass_Drives type=udev content-type=disk device-config:location=/srv/pass_drives)
 }
@@ -39,21 +39,9 @@ combustion-ISO () {
 }
 
 
-disk-CLONE () {
-  snUID=$(xe snapshot-list name-label=orchestra_preinstall | grep uuid | awk -F ': ' {'print $2'})
-  vdiUID_src=$(xe snapshot-disk-list uuid=$snUID | grep -A 1 VDI | grep uuid | awk -F ': ' {'print $2'})
-  vdiUID=$(xe vdi-clone uuid=$vdiUID_src new-name-label=nfsshare)
-}
-
-
 create-VM () {
-  vmUID=$(xe vm-install new-name-label=nfsserver new-name-description="NFS-Server VM" template-name-label="Other install media")
-  xe vm-memory-limits-set static-min=1GiB static-max=2GiB dynamic-min=1GiB dynamic-max=2GiB uuid=$vmUID
-  xe vm-param-set uuid=$vmUID VCPUs-max=1 VCPUs-at-startup=1
-  xe vm-param-set uuid=$vmUID HVM-boot-params:"firmware=uefi"
-  
-  xe vbd-create device=0 vm-uuid=$vmUID vdi-uuid=$vdiUID
-  
+  vmUID=$(xe vm-install new-name-label=nfsserver new-name-description="NFS-Server VM" template-name-label=MicroOS_Template)
+    
   vdiUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
   N=3
   for D in $vdiUID; do
@@ -63,8 +51,6 @@ create-VM () {
   
   xe vm-cd-add cd-name=nfsshare_combustion.iso device=1 uuid=$vmUID
   xe vm-cd-add cd-name=guest-tools.iso device=2 uuid=$vmUID
-  
-  xe vif-create network-uuid=$defaultNET vm-uuid=$vmUID device=0
   
   xe vm-param-set uuid=$vmUID other-config:auto_poweron=true
 }
@@ -84,7 +70,6 @@ cleanup () {
 
 add-SR
 combustion-ISO
-disk-CLONE
 create-VM
 
 xe vm-start uuid=$vmUID

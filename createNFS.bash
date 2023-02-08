@@ -41,7 +41,10 @@ combustion-ISO () {
 
 create-VM () {
   vmUID=$(xe vm-install new-name-label=nfsserver new-name-description="NFS-Server VM" template-name-label=MicroOS_Template)
-    
+  
+  vdiUID=$(xe vm-disk-list uuid=$vmUID | grep -A 1 VDI | grep uuid | awk -F ': ' {'print $2'})
+  xe vdi-param-set uuid=$vdiUID name-label=nfsshare
+  
   vdiUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
   N=3
   for D in $vdiUID; do

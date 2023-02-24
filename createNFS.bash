@@ -41,6 +41,7 @@ combustion-ISO () {
 
 create-VM () {
   vmUID=$(xe vm-install new-name-label=nfsserver new-name-description="NFS-Server VM" template-name-label=MicroOS_Template)
+  xe vm-memory-limits-set static-min=1GiB static-max=1GiB dynamic-min=1GiB dynamic-max=1GiB uuid=$vmUID
   
   vdiUID=$(xe vm-disk-list uuid=$vmUID | grep -A 1 VDI | grep uuid | awk -F ': ' {'print $2'})
   xe vdi-param-set uuid=$vdiUID name-label=nfsshare

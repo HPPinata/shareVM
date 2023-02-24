@@ -11,8 +11,15 @@ zypper rm -yu xen-tools-domU
 
 echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
-zypper in -y nfs-kernel-server parted
+zypper in -y nfs-kernel-server parted zram-generator
 systemctl enable nfs-server
+
+cat <<'EOL' > /etc/systemd/zram-generator.conf
+[zram0]
+
+zram-size = ram
+compression-algorithm = zstd
+EOL
 
 wipefs -f -a /dev/xvdd /dev/xvde
 parted -s -a optimal /dev/xvdd 'mklabel gpt mkpart primary 0% 100%'

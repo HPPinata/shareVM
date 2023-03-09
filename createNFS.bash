@@ -48,8 +48,15 @@ create-VM () {
   
   passUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
   N=3
-  for D in $passUID; do
-    xe vbd-create vm-uuid=$vmUID device=$N vdi-uuid=$D
+  delim=""
+  joined=""
+  prefix="[NOBAK]"
+  
+  for drive in $passUID; do
+    xe vbd-create vm-uuid=$vmUID device=$N vdi-uuid=$drive
+    xe vdi-param-set uuid=$drive name-label="$prefix $(xe vdi-param-get uuid=$drive param-name=name-label)"
+    joined="$joined$delim$drive"
+    delim=","
     let N++
   done
   
@@ -57,6 +64,7 @@ create-VM () {
   xe vm-cd-add cd-name=guest-tools.iso device=2 uuid=$vmUID
   
   xe vm-param-set uuid=$vmUID other-config:auto_poweron=true
+  xe vm-snapshot new-name-label=nfsserver_preinstall new-name-description="NFS-Server VM pre install" uuid=$vmUID ignore-vdi-uuids=$joined
 }
 
 
@@ -70,6 +78,7 @@ cleanup () {
   xe vm-shutdown uuid=$vmUID
   xe vm-cd-remove cd-name=nfsshare_combustion.iso uuid=$vmUID
   xe vm-cd-remove cd-name=guest-tools.iso uuid=$vmUID
+  xe vm-snapshot new-name-label=nfsserver_postinstall new-name-description="NFS-Server VM post install" uuid=$vmUID ignore-vdi-uuids=$joined
 }
 
 add-SR

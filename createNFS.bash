@@ -1,6 +1,6 @@
 #!/bin/bash
 
-yum upgrade -y && yum autoremove -y
+until yum upgrade -y && yum autoremove -y; do sleep 5; done
 mkdir install-tmp
 mv createNFS.bash install-tmp
 cd install-tmp
@@ -30,7 +30,7 @@ combustion-ISO () {
   
   mkdir -p disk/combustion
   mv combustion.bash disk/combustion/script
-  yum install -y genisoimage
+  until yum install -y genisoimage; do sleep 5; done
   mkisofs -l -o nfsshare_combustion.iso -V combustion disk
   yum remove -y genisoimage && yum autoremove -y
   
@@ -71,7 +71,7 @@ create-VM () {
 cleanup () {
   cd .. && rm -rf install-tmp
   
-  yum install -y pv --enablerepo epel
+  until yum install -y pv --enablerepo epel; do sleep 5; done
   yes | pv -SpeL1 -s 300 > /dev/null
   yum remove -y pv && yum autoremove -y
   

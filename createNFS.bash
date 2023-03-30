@@ -39,6 +39,15 @@ combustion-ISO () {
 }
 
 
+attachVDI () {
+  xe vbd-create vm-uuid=$vmUID device=$N vdi-uuid=$vdiUID
+  xe vdi-param-set uuid=$vdiUID name-label="$prefix $(xe vdi-param-get uuid=$vdiUID param-name=name-label)"
+  joined="$joined$delim$vdiUID"
+  delim=","
+  let N++
+}
+
+
 create-VM () {
   vmUID=$(xe vm-install new-name-label=nfsserver new-name-description="NFS-Server VM" template-name-label=MicroOS_Template)
   xe vm-memory-limits-set static-min=1GiB static-max=1GiB dynamic-min=1GiB dynamic-max=1GiB uuid=$vmUID
@@ -46,18 +55,19 @@ create-VM () {
   vdiUID=$(xe vm-disk-list uuid=$vmUID | grep -A 1 VDI | grep uuid | awk -F ': ' {'print $2'})
   xe vdi-param-set uuid=$vdiUID name-label=nfsshare
   
-  passUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
-  N=4
   delim=""
   joined=""
   prefix="[NOBAK]"
   
-  for drive in $passUID; do
-    xe vbd-create vm-uuid=$vmUID device=$N vdi-uuid=$drive
-    xe vdi-param-set uuid=$drive name-label="$prefix $(xe vdi-param-get uuid=$drive param-name=name-label)"
-    joined="$joined$delim$drive"
-    delim=","
-    let N++
+  vdiUID=$(xe vdi-create sr-uuid=$defaultSR name-label=cache virtual-size=80GiB)
+  N=3
+  attachVDI
+  
+  passUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
+  N=4
+  
+  for vdiUID in $passUID; do
+  attachVDI
   done
   
   xe vm-cd-add cd-name=nfsshare_combustion.iso device=1 uuid=$vmUID

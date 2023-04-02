@@ -10,7 +10,7 @@ mount /dev/sr1 /mnt
 zypper rm -yu xen-tools-domU
 /mnt/Linux/install.sh -d sles -m 15 -n
 
-zypper in -y bcache-tools nfs-kernel-server parted zram-generator
+zypper in -y bcache-tools checkpolicy nfs-kernel-server parted wget zram-generator
 systemctl enable nfs-server
 
 cat <<'EOL' > /etc/systemd/zram-generator.conf

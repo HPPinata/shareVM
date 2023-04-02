@@ -30,6 +30,7 @@ parted -s -a optimal /dev/xvdd 'mklabel gpt mkpart primary 0% 100%'
 parted -s -a optimal /dev/xvde 'mklabel gpt mkpart primary 0% 100%'
 parted -s -a optimal /dev/xvdf 'mklabel gpt mkpart primary 0% 100%'
 
+wipefs -f -a /dev/xvdd1 /dev/xvde1 /dev/xvdf1
 make-bcache -B /dev/xvde1 /dev/xvdf1
 make-bcache -C /dev/xvdd1
 for i in $(find /dev/ -iname bcache* -printf '%f\n'); do

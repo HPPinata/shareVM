@@ -37,6 +37,7 @@ for i in $(find /dev/ -iname bcache* -printf '%f\n'); do
 bcache-super-show /dev/xvdd1 | grep cset.uuid | awk -F ' ' {'print $2'} > /sys/block/$i/bcache/attach
 done
 
+wipefs -f -a /dev/bcache0 /dev/bcache1
 mkfs.btrfs -f -L data -m raid1 -d raid1 /dev/bcache0 /dev/bcache1
 mkdir -p /var/nfsshare
 mount /dev/bcache0 /var/nfsshare

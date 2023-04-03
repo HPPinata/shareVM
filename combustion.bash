@@ -10,7 +10,7 @@ mount /dev/sr1 /mnt
 zypper rm -yu xen-tools-domU
 /mnt/Linux/install.sh -d sles -m 15 -n
 
-zypper in -y bcache-tools checkpolicy nfs-kernel-server parted wget zram-generator
+zypper in -y bcache-tools checkpolicy nfs-kernel-server wget zram-generator
 systemctl enable nfs-server
 
 cat <<'EOL' > /etc/systemd/zram-generator.conf
@@ -25,20 +25,24 @@ checkmodule -M -m -o xen_shutdown.mod xen_shutdown.te
 semodule_package -o xen_shutdown.pp -m xen_shutdown.mod
 semodule -i xen_shutdown.pp
 
-wipefs -f -a /dev/xvdd /dev/xvde /dev/xvdf
-parted -s -a optimal /dev/xvdd 'mklabel gpt mkpart primary 0% 100%'
-parted -s -a optimal /dev/xvde 'mklabel gpt mkpart primary 0% 100%'
-parted -s -a optimal /dev/xvdf 'mklabel gpt mkpart primary 0% 100%'
+modprobe bcache
 
-wipefs -f -a /dev/xvdd1 /dev/xvde1 /dev/xvdf1
-make-bcache -B /dev/xvde1 /dev/xvdf1
-make-bcache -C /dev/xvdd1
-for i in $(find /dev/ -iname bcache* -printf '%f\n'); do
-bcache-super-show /dev/xvdd1 | grep cset.uuid | awk -F ' ' {'print $2'} > /sys/block/$i/bcache/attach
-done
+echo 1 | tee /sys/fs/bcache/*/stop
+echo 1 | tee /sys/block/bcache*/bcache/stop
+wipefs -f -a /dev/xvdd /dev/xvde /dev/xvdf
+
+make-bcache -B /dev/xvde /dev/xvdf
+echo /dev/xvde > /sys/fs/bcache/register
+echo /dev/xvdf > /sys/fs/bcache/register
+
+make-bcache -C /dev/xvdd
+echo /dev/xvdd > /sys/fs/bcache/register
+
+bcache-super-show /dev/xvdd | grep cset.uuid | awk -F ' ' {'print $2'} | tee /sys/block/bcache*/bcache/attach
 
 wipefs -f -a /dev/bcache0 /dev/bcache1
 mkfs.btrfs -f -L data -m raid1 -d raid1 /dev/bcache0 /dev/bcache1
+
 mkdir -p /var/nfsshare
 mount /dev/bcache0 /var/nfsshare
 

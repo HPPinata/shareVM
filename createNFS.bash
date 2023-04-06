@@ -59,10 +59,6 @@ create-VM () {
   joined=""
   prefix="[NOBAK]"
   
-  vdiUID=$(xe vdi-create sr-uuid=$defaultSR name-label=cache virtual-size=80GiB)
-  N=3
-  attachVDI
-  
   passUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
   N=4
   

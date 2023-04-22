@@ -1,26 +1,11 @@
 #!/bin/bash
 
-until yum upgrade -y && yum autoremove -y; do sleep 5; done
 mkdir install-tmp
 mv createNFS.bash install-tmp
 cd install-tmp
 
-defaultSR=$(xe sr-list name-label="Local storage" | grep uuid | awk -F ': ' {'print $2'})
-defaultNET=$(xe network-list bridge=xenbr0 | grep uuid | awk -F ': ' {'print $2'})
-
-
-add-SR () {
-  mkdir /srv/pass_drives
-  ln -s /dev/sda /srv/pass_drives/
-  ln -s /dev/sdb /srv/pass_drives/
-  
-  passSR=$(xe sr-create name-label=Pass_Drives type=udev content-type=disk device-config:location=/srv/pass_drives)
-}
-
 
 combustion-ISO () {
-  isoSR=$(xe sr-list name-label=LocalISO | grep uuid | awk -F ': ' {'print $2'})
-  
   wget https://raw.githubusercontent.com/HPPinata/nfsVM/main/combustion.bash
   
   while [ -z "$hashed_password" ]; do echo "Password previously unset or input inconsistent."; \
@@ -30,67 +15,62 @@ combustion-ISO () {
   
   mkdir -p disk/combustion
   mv combustion.bash disk/combustion/script
-  until yum install -y genisoimage; do sleep 5; done
   mkisofs -l -o nfsshare_combustion.iso -V combustion disk
-  yum remove -y genisoimage && yum autoremove -y
   
-  cp nfsshare_combustion.iso /var/opt/xen/ISO_Store
-  xe sr-scan uuid=$isoSR
+  cp nfsshare_combustion.iso /var/lib/vz/template/iso
 }
 
 
-attachVDI () {
-  xe vbd-create vm-uuid=$vmUID device=$N vdi-uuid=$vdiUID
-  xe vdi-param-set uuid=$vdiUID name-label="$prefix $(xe vdi-param-get uuid=$vdiUID param-name=name-label)"
-  joined="$joined$delim$vdiUID"
-  delim=","
-  let N++
+create-TEMPLATE () {
+  vmID=99
+  vmNAME=microos
+  vmDESC="openSUSE MicroOS base template"
+  
+  qm create $vmID --name $vmNAME --description $vmDESC --cores 1 --memory 1024 --balloon 1024 --net0 model=virtio,bridge=vmbr0 --bios ovmf \
+  --ostype l26 --machine q35 --scsihw virtio-scsi-pci --onboot 0 --cdrom none --agent enabled=1 --boot-order virtio0
+  
+  wget https://download.opensuse.org/tumbleweed/appliances/openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2
+  
+  qm disk import $vmID openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2 local-lvm
+  qm set $vmID --virtio0 local-lvm:vm-$vmID-disk-1
+  qm disk resize $vmID virtio0 25G
+  
+  qm set $vmID template 1
 }
 
 
 create-VM () {
-  vmUID=$(xe vm-install new-name-label=nfsserver new-name-description="NFS-Server VM" template-name-label=MicroOS_Template)
-  xe vm-memory-limits-set static-min=1GiB static-max=1GiB dynamic-min=1GiB dynamic-max=1GiB uuid=$vmUID
+  create-TEMPLATE
+  qm clone 99 100 --name nfsshare --description "NFS Server VM"
   
-  vdiUID=$(xe vm-disk-list uuid=$vmUID | grep -A 1 VDI | grep uuid | awk -F ': ' {'print $2'})
-  xe vdi-param-set uuid=$vdiUID name-label=nfsshare
+  N=0
+  pass=( sda sdb )
   
-  delim=""
-  joined=""
-  prefix="[NOBAK]"
-  
-  passUID=$(xe vdi-list sr-uuid=$passSR | grep -e uuid | grep -v sr | awk -F ': ' {'print $2'})
-  N=4
-  
-  for vdiUID in $passUID; do
-  attachVDI
+  for blk in pass; do
+    qm set 100 -scsi$N /dev/$blk
+    let N++
   done
   
-  xe vm-cd-add cd-name=nfsshare_combustion.iso device=1 uuid=$vmUID
-  xe vm-cd-add cd-name=guest-tools.iso device=2 uuid=$vmUID
-  
-  xe vm-param-set uuid=$vmUID other-config:auto_poweron=true
-  xe vm-snapshot new-name-label=nfsserver_preinstall new-name-description="NFS-Server VM pre install" uuid=$vmUID ignore-vdi-uuids=$joined
+  qm set $vmID --cdrom local:iso/nfsshare_combustion.iso
+  qm set $vmID --onboot 1
 }
 
 
 cleanup () {
   cd .. && rm -rf install-tmp
   
-  until yum install -y pv --enablerepo epel; do sleep 5; done
+  until apt install -y pv; do sleep 5; done
   yes | pv -SpeL1 -s 300 > /dev/null
-  yum remove -y pv && yum autoremove -y
+  apt remove -y pv && apt autoremove -y
   
-  xe vm-shutdown uuid=$vmUID
-  xe vm-cd-remove cd-name=nfsshare_combustion.iso uuid=$vmUID
-  xe vm-cd-remove cd-name=guest-tools.iso uuid=$vmUID
-  xe vm-snapshot new-name-label=nfsserver_postinstall new-name-description="NFS-Server VM post install" uuid=$vmUID ignore-vdi-uuids=$joined
+  qm shutdown $vmID
+  qm set $vmID --cdrom none
 }
 
-add-SR
+
 combustion-ISO
 create-VM
 
-xe vm-start uuid=$vmUID
+qm start 100
 
 cleanup

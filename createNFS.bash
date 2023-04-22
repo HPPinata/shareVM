@@ -33,9 +33,9 @@ create-TEMPLATE () {
   
   qm disk import $tpID openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2 local-lvm
   qm set $tpID --virtio0 local-lvm:vm-$tpID-disk-1
-  qm disk resize $tpID --virtio0 25G
+  qm disk resize $tpID virtio0 25G
   
-  qm set $tpID template 1
+  qm set $tpID --template 1
 }
 
 
@@ -48,7 +48,7 @@ create-VM () {
   pass=( sda sdb )
   
   for blk in pass; do
-    qm set vmID -scsi$N /dev/$blk
+    qm set $vmID -scsi$N /dev/$blk
     let N++
   done
   
@@ -71,6 +71,6 @@ cleanup () {
 combustion-ISO
 create-VM
 
-qm start vmID
+qm start $vmID
 
 cleanup

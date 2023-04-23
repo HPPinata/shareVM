@@ -28,7 +28,7 @@ create-TEMPLATE () {
   vmDESC="openSUSE MicroOS base template"
   
   qm create $tpID --name $vmNAME --description "$vmDESC" --cores 1 --memory 1024 --balloon 1024 --net0 model=virtio,bridge=vmbr0 --bios ovmf \
-  --ostype l26 --machine q35 --scsihw virtio-scsi-pci --onboot 0 --cdrom none --agent enabled=1 --boot order=virtio0 --efidisk0 local-btrfs:4
+  --ostype l26 --machine q35 --scsihw virtio-scsi-single --onboot 0 --cdrom none --agent enabled=1 --boot order=virtio0 --efidisk0 local-btrfs:4
   
   wget https://download.opensuse.org/tumbleweed/appliances/openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2
   

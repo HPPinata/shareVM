@@ -21,7 +21,7 @@ add-SR () {
 combustion-ISO () {
   isoSR=$(xe sr-list name-label=LocalISO | grep uuid | awk -F ': ' {'print $2'})
   
-  wget https://raw.githubusercontent.com/HPPinata/nfsVM/main/combustion.bash
+  wget https://raw.githubusercontent.com/HPPinata/nfsVM/xen/combustion.bash
   
   while [ -z "$hashed_password" ]; do echo "Password previously unset or input inconsistent."; \
     hashed_password="$(python3 -c 'import crypt; import getpass; \

@@ -7,7 +7,7 @@ echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
 mount /dev/vda4 /var
 
-zypper in -y nfs-kernel-server zram-generator
+zypper in -y bees nfs-kernel-server zram-generator
 systemctl enable nfs-server
 
 cat <<'EOL' > /etc/systemd/zram-generator.conf
@@ -31,3 +31,25 @@ mkdir /var/nfsshare/mnt/net
 
 echo '/var/nfsshare/mnt/vms  *(rw,no_root_squash)' >> /etc/exports
 echo '/var/nfsshare/mnt/net  *(rw,no_root_squash)' >> /etc/exports
+
+mkdir /var/nfsshare/mnt/.beeshome
+truncate -s 1g /var/nfsshare/mnt/.beeshome/beeshash.dat
+
+cat <<'EOL' > /etc/systemd/system/bees-dedup.service
+[Unit]
+Description=Run bees deduplication
+After=sysinit.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bees /var/nfsshare/mnt
+KillMode=control-group
+KillSignal=SIGTERM
+Restart=on-abnormal
+RuntimeDirectory=bees
+AmbientCapabilities=CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SYS_ADMIN
+
+[Install]
+WantedBy=basic.target
+EOL
+systemctl enable /etc/systemd/system/bees-dedup.service

@@ -43,7 +43,9 @@ create-TEMPLATE () {
 create-VM () {
   create-TEMPLATE
   vmID=100
+  
   qm clone $tpID $vmID --name nfsshare --description "NFS Server VM"
+  qm set $vmID --cores 2 --memory 4096 --balloon 2048
   
   N=0
   pass=( sda sdb )

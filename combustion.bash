@@ -43,11 +43,22 @@ After=sysinit.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/bees /var/nfsshare/mnt
+CPUAccounting=true
+CPUSchedulingPolicy=batch
+CPUWeight=12
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+IOWeight=10
 KillMode=control-group
 KillSignal=SIGTERM
+MemoryAccounting=true
+Nice=19
 Restart=on-abnormal
 RuntimeDirectory=bees
+StartupCPUWeight=25
+StartupIOWeight=25
 AmbientCapabilities=CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SYS_ADMIN
+PrivateTmp=true
 
 [Install]
 WantedBy=basic.target

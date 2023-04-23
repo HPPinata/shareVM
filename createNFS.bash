@@ -1,5 +1,6 @@
 #!/bin/bash
 
+apt update
 mkdir install-tmp
 mv createNFS.bash install-tmp
 cd install-tmp

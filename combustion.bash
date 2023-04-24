@@ -38,6 +38,7 @@ truncate -s 1g /var/nfsshare/mnt/.beeshome/beeshash.dat
 cat <<'EOL' > /etc/systemd/system/bees-dedup.service
 [Unit]
 Description=Run bees deduplication
+Documentation=https://github.com/Zygo/bees
 After=sysinit.target
 
 [Service]
@@ -58,7 +59,6 @@ RuntimeDirectory=bees
 StartupCPUWeight=25
 StartupIOWeight=25
 AmbientCapabilities=CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SYS_ADMIN
-PrivateTmp=true
 
 [Install]
 WantedBy=basic.target

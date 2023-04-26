@@ -7,7 +7,7 @@ echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
 mount /dev/vda4 /var
 
-zypper in -y bees nfs-kernel-server zram-generator
+zypper in -y cron duperemove nfs-kernel-server zram-generator
 systemctl enable nfs-server
 
 cat <<'EOL' > /etc/systemd/zram-generator.conf
@@ -32,35 +32,9 @@ mkdir /var/nfsshare/mnt/net
 echo '/var/nfsshare/mnt/vms  *(rw,no_root_squash)' >> /etc/exports
 echo '/var/nfsshare/mnt/net  *(rw,no_root_squash)' >> /etc/exports
 
-mkdir /var/nfsshare/mnt/.beeshome
-truncate -s 1g /var/nfsshare/mnt/.beeshome/beeshash.dat
+mkdir /var/nfsshare/mnt/.duperemove
 
-cat <<'EOL' > /etc/systemd/system/bees-dedup.service
-[Unit]
-Description=Run bees deduplication
-Documentation=https://github.com/Zygo/bees
-After=sysinit.target
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/bees /var/nfsshare/mnt
-CPUAccounting=true
-CPUSchedulingPolicy=batch
-CPUWeight=12
-IOSchedulingClass=idle
-IOSchedulingPriority=7
-IOWeight=10
-KillMode=control-group
-KillSignal=SIGTERM
-MemoryAccounting=true
-Nice=19
-Restart=on-abnormal
-RuntimeDirectory=bees
-StartupCPUWeight=25
-StartupIOWeight=25
-AmbientCapabilities=CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SYS_ADMIN
-
-[Install]
-WantedBy=basic.target
+cat <<'EOL' | crontab -
+6 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/nfsshare/mnt/.duperemove/hashfile.db
+5 5 1 * * rm -rf /var/nfsshare/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/nfsshare/mnt
 EOL
-systemctl enable /etc/systemd/system/bees-dedup.service

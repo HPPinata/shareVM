@@ -34,7 +34,7 @@ create-TEMPLATE () {
   wget https://download.opensuse.org/tumbleweed/appliances/openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2
   
   qm disk import $tpID openSUSE-MicroOS.x86_64-kvm-and-xen.qcow2 local-btrfs
-  qm set $tpID --virtio0 local-btrfs:$tpID/vm-$tpID-disk-1.raw,discard=on,iothread=1
+  qm set $tpID --virtio0 local-btrfs:$tpID/vm-$tpID-disk-1.raw,cache=writeback,discard=on,iothread=1
   qm disk resize $tpID virtio0 25G
   
   qm set $tpID --template 1

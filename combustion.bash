@@ -23,6 +23,9 @@ sleep 1
 
 wipefs -f -a /dev/sda /dev/sdb /dev/vdb
 make-bcache -B /dev/sda /dev/sdb -C /dev/vdb
+sleep 1
+echo writeback > /sys/block/bcache*/bcache/cache_mode
+
 wipefs -f -a /dev/bcache0 /dev/bcache1
 
 mkfs.btrfs -f -L data -m raid1 -d raid1 /dev/bcache0 /dev/bcache1

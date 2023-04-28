@@ -48,6 +48,8 @@ create-VM () {
   qm clone $tpID $vmID --name nfsshare --description "NFS Server VM"
   qm set $vmID --cores 2 --memory 4096 --balloon 1024
   
+  qm set $mvID --virtio1 local-btrfs:80G,cache=writeback,discard=on,iothread=1
+  
   N=0
   pass=( sda sdb )
   

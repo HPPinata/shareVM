@@ -29,8 +29,8 @@ cat /etc/fstab
 mkdir /var/nfsshare/mnt/vms
 mkdir /var/nfsshare/mnt/net
 
-echo '/var/nfsshare/mnt/vms  *(rw,no_root_squash)' >> /etc/exports
-echo '/var/nfsshare/mnt/net  *(rw,no_root_squash)' >> /etc/exports
+echo '/var/nfsshare/mnt/vms  *(rw,async,no_root_squash)' >> /etc/exports
+echo '/var/nfsshare/mnt/net  *(rw,async,no_root_squash)' >> /etc/exports
 
 mkdir /var/nfsshare/mnt/.duperemove
 

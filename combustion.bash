@@ -35,6 +35,6 @@ echo '/var/nfsshare/mnt/net  *(rw,async,no_root_squash)' >> /etc/exports
 mkdir /var/nfsshare/mnt/.duperemove
 
 cat <<'EOL' | crontab -
-6 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/nfsshare/mnt/.duperemove/hashfile.db
+6 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/nfsshare/mnt/.duperemove/hashfile.db /var/nfsshare/mnt
 5 5 1 * * rm -rf /var/nfsshare/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/nfsshare/mnt
 EOL

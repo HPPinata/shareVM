@@ -46,7 +46,7 @@ create-VM () {
   vmID=100
   
   qm clone $tpID $vmID --name nfsshare --description "NFS Server VM"
-  qm set $vmID --cores 2 --memory 4096 --balloon 1024
+  qm set $vmID --cores 2 --memory 4096 --balloon 1024 --startup order=0,up=60
   
   N=0
   pass=( sda sdb )

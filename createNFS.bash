@@ -48,11 +48,13 @@ create-VM () {
   qm clone $tpID $vmID --name nfsshare --description "NFS Server VM"
   qm set $vmID --cores 2 --memory 4096 --balloon 1024 --startup order=0,up=60
   
+  qm set $vmID --virtio1 local-btrfs:80,cache=writeback,discard=on,iothread=1
+  
   N=0
-  pass=( sda sdb )
+  pass=( /dev/sda /dev/sdb )
   
   for blk in ${pass[@]}; do
-    qm set $vmID -scsi$N /dev/$blk,discard=on,iothread=1
+    qm set $vmID --scsi$N $blk,cache=writeback,discard=on,iothread=1
     let N++
   done
   

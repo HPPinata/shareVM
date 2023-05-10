@@ -3,9 +3,9 @@ This script was created to bring up a simple NFS share in XCP-ng without having 
 
 ## Usage:
 ```
-wget https://raw.githubusercontent.com/HPPinata/nfsVM/proxmox/createNFS.bash
-cat createNFS.bash #look at the things you download
-bash createNFS.bash
+wget https://raw.githubusercontent.com/HPPinata/nfsVM/proxmox/createSMB.bash
+cat createSMB.bash #look at the things you download
+bash createSMB.bash
 ```
 
 When the script completes the VM shuts down. After the next startup the NFS share should be reachable on the IP address your DHCP server assigned to the VM (or via the hostname "nfsshare").

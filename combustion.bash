@@ -7,7 +7,7 @@ echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
 mount /dev/vda4 /var
 
-zypper in -y bcache-tools cron duperemove samba zram-generator
+zypper in -y bcache-tools cron duperemove policycoreutils-python-utils samba zram-generator
 systemctl enable smb
 
 cat <<'EOL' > /etc/systemd/zram-generator.conf
@@ -67,6 +67,9 @@ cat <<'EOL' >> /etc/samba/smb.conf
     read only = no
     browsable = yes
 EOL
+
+semanage fcontext -at samba_share_t "/var/smbshare/mnt(/.*)?"
+restorecon -Rv /
 
 mkdir /var/smbshare/mnt/.duperemove
 

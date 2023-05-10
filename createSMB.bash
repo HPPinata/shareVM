@@ -9,10 +9,15 @@ cd install-tmp
 combustion-ISO () {
   wget https://raw.githubusercontent.com/HPPinata/nfsVM/proxmox/combustion.bash
   
-  while [ -z "$hashed_password" ]; do echo "Password previously unset or input inconsistent."; \
+  while [ -z "$hashed_password" ]; do echo "VM password previously unset or input inconsistent."; \
     hashed_password="$(python3 -c 'import crypt; import getpass; \
     tin = getpass.getpass(); tin2 = getpass.getpass(); print(crypt.crypt(tin)) if (tin == tin2) else ""')"; done
   sed -i "s+HASHchangeME+$hashed_password+g" combustion.bash
+  
+  while [ -z "$smb_password" ]; do echo "SMB password previously unset or input inconsistent."; \
+    smb_password="$(python3 -c 'import hashlib; import getpass; \
+    tin = getpass.getpass(); tin2 = getpass.getpass(); print(hashlib.new("md4", tin.encode("utf-16le")).hexdigest()) if (tin == tin2) else ""')"; done
+  sed -i "s+SMBchangeME+$smb_password+g" combustion.bash
   
   mkdir -p disk/combustion
   mv combustion.bash disk/combustion/script

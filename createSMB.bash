@@ -2,23 +2,28 @@
 
 apt update
 mkdir install-tmp
-mv createNFS.bash install-tmp
+mv createSMB.bash install-tmp
 cd install-tmp
 
 
 combustion-ISO () {
-  wget https://raw.githubusercontent.com/HPPinata/nfsVM/proxmox/combustion.bash
+  wget https://raw.githubusercontent.com/HPPinata/shareVM/samba/combustion.bash
   
-  while [ -z "$hashed_password" ]; do echo "Password previously unset or input inconsistent."; \
+  while [ -z "$hashed_password" ]; do echo "VM password previously unset or input inconsistent."; \
     hashed_password="$(python3 -c 'import crypt; import getpass; \
     tin = getpass.getpass(); tin2 = getpass.getpass(); print(crypt.crypt(tin)) if (tin == tin2) else ""')"; done
   sed -i "s+HASHchangeME+$hashed_password+g" combustion.bash
   
+  while [ -z "$smb_password" ]; do echo "SMB password previously unset or input inconsistent."; \
+    smb_password="$(python3 -c 'import hashlib; import getpass; \
+    tin = getpass.getpass(); tin2 = getpass.getpass(); print(hashlib.new("md4", tin.encode("utf-16le")).hexdigest()) if (tin == tin2) else ""')"; done
+  sed -i "s+SMBchangeME+$smb_password+g" combustion.bash
+  
   mkdir -p disk/combustion
   mv combustion.bash disk/combustion/script
-  mkisofs -l -o nfsshare_combustion.iso -V combustion disk
+  mkisofs -l -o smbshare_combustion.iso -V combustion disk
   
-  cp nfsshare_combustion.iso /var/lib/pve/local-btrfs/template/iso
+  cp smbshare_combustion.iso /var/lib/pve/local-btrfs/template/iso
 }
 
 
@@ -45,7 +50,7 @@ create-VM () {
   create-TEMPLATE
   vmID=100
   
-  qm clone $tpID $vmID --name nfsshare --description "NFS Server VM"
+  qm clone $tpID $vmID --name smbshare --description "SMB Server VM"
   qm set $vmID --cores 2 --memory 4096 --balloon 1024 --startup order=0,up=60
   
   qm set $vmID --virtio1 local-btrfs:80,cache=writeback,discard=on,iothread=1
@@ -58,7 +63,7 @@ create-VM () {
     let N++
   done
   
-  qm set $vmID --cdrom local-btrfs:iso/nfsshare_combustion.iso
+  qm set $vmID --cdrom local-btrfs:iso/smbshare_combustion.iso
   qm set $vmID --onboot 1
 }
 

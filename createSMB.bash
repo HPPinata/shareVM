@@ -7,7 +7,7 @@ cd install-tmp
 
 
 combustion-ISO () {
-  wget https://raw.githubusercontent.com/HPPinata/nfsVM/proxmox/combustion.bash
+  wget https://raw.githubusercontent.com/HPPinata/shareVM/samba/combustion.bash
   
   while [ -z "$hashed_password" ]; do echo "VM password previously unset or input inconsistent."; \
     hashed_password="$(python3 -c 'import crypt; import getpass; \

@@ -3,7 +3,7 @@ This script was created to bring up an SMB share with bcache in Proxmox without 
 
 ## Usage:
 ```
-wget https://raw.githubusercontent.com/HPPinata/shareVM/samba/createSMB.bash
+wget https://raw.githubusercontent.com/HPPinata/shareVM/proxmox/createSMB.bash
 cat createSMB.bash #look at the things you download
 bash createSMB.bash
 ```

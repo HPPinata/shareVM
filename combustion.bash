@@ -55,11 +55,12 @@ mkdir /var/smbshare/mnt/net
 pdbedit -u root --set-nt-hash 'SMBchangeME'
 
 cat <<'EOL' >> /etc/samba/smb.conf
+
 [smb-sr]
     comment = VM disk network share
     path = /var/smbshare/mnt/vms
     read only = no
-    browsable = no
+    browsable = yes
 
 [smb-net]
     comment = user data network share

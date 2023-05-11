@@ -51,7 +51,7 @@ create-VM () {
   vmID=100
   
   qm clone $tpID $vmID --name smbshare --description "SMB Server VM"
-  qm set $vmID --cores 2 --memory 4096 --balloon 1024 --startup order=0,up=60
+  qm set $vmID --cores 4 --memory 8192 --balloon 1024 --startup order=0,up=60
   
   qm set $vmID --virtio1 local-btrfs:80,cache=writeback,discard=on,iothread=1
   

@@ -3,7 +3,7 @@ This script was created to bring up a simple NFS share in XCP-ng without having 
 
 ## Usage:
 ```
-wget https://raw.githubusercontent.com/HPPinata/nfsVM/xen/createNFS.bash
+wget https://raw.githubusercontent.com/HPPinata/shareVM/xen/createNFS.bash
 cat createNFS.bash #look at the things you download
 bash createNFS.bash
 ```

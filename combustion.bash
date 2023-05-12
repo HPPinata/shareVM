@@ -54,8 +54,7 @@ mkdir /var/smbshare/mnt/net
 { echo 'SMBchangeME'; echo 'SMBchangeME'; } | smbpasswd -a root
 pdbedit -u root --set-nt-hash 'SMBchangeME'
 
-cat <<'EOL' >> /etc/samba/smb.conf
-
+cat <<'EOL' > /etc/samba/smb.conf
 [smb-sr]
     comment = VM disk network share
     path = /var/smbshare/mnt/vms

@@ -70,7 +70,7 @@ cat <<'EOL' >> /etc/samba/smb.conf
 EOL
 
 semanage fcontext -at samba_share_t "/var/smbshare/mnt(/.*)?"
-restorecon -Rv /
+touch /.autorelabel
 
 mkdir /var/smbshare/mnt/.duperemove
 

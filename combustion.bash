@@ -76,6 +76,7 @@ mkdir /var/smbshare/mnt/.duperemove
 cat <<'EOL' | crontab -
 BASH_ENV=/etc/profile
 
+@reboot restorecon -Rv /
 6 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/smbshare/mnt/.duperemove/hashfile.db /var/smbshare/mnt
 5 5 1 * * rm -rf /var/smbshare/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/smbshare/mnt
 EOL

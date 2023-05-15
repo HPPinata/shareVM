@@ -69,11 +69,11 @@ cat <<'EOL' > /etc/samba/smb.conf
 EOL
 
 semanage fcontext -at samba_share_t "/var/smbshare/mnt(/.*)?"
-touch /.autorelabel
 
 mkdir /var/smbshare/mnt/.duperemove
 
 cat <<'EOL' | crontab -
+SHELL=/bin/bash
 BASH_ENV=/etc/profile
 
 @reboot restorecon -Rv /

@@ -68,15 +68,15 @@ cat <<'EOL' > /etc/samba/smb.conf
     browsable = yes
 EOL
 
-semanage fcontext -at samba_share_t "/var/smbshare/mnt(/.*)?"
-
 mkdir /var/smbshare/mnt/.duperemove
+semanage fcontext -at samba_share_t "/var/smbshare/mnt(/.*)?"
 
 cat <<'EOL' | crontab -
 SHELL=/bin/bash
 BASH_ENV=/etc/profile
 
 @reboot restorecon -Rv /
+@reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
 6 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/smbshare/mnt/.duperemove/hashfile.db /var/smbshare/mnt
 5 5 1 * * rm -rf /var/smbshare/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/smbshare/mnt
 EOL

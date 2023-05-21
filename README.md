@@ -9,3 +9,10 @@ bash createSMB.bash
 ```
 
 When the script completes the VM shuts down. After the next startup the SMB share should be reachable on the IP address your DHCP server assigned to the VM (or via the hostname "smbshare").
+
+### SEQ_cutoff:
+Set bcache sequential cutoff to different value (4M) temporarily
+```
+echo $(( 1024 * 4096 )) | tee /sys/block/bcache*/bcache/sequential_cutoff
+cat /sys/block/bcache*/bcache/sequential_cutoff
+```

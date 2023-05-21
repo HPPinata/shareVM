@@ -46,7 +46,6 @@ mkdir -p /var/smbshare/mnt
 mount /dev/bcache0 /var/smbshare/mnt
 
 { echo; echo '/dev/bcache0  /var/smbshare/mnt  btrfs  nofail  0  2'; } >> /etc/fstab
-cat /etc/fstab
 
 mkdir /var/smbshare/mnt/vms
 mkdir /var/smbshare/mnt/net
@@ -75,6 +74,7 @@ cat <<'EOL' | crontab -
 SHELL=/bin/bash
 BASH_ENV=/etc/profile
 
+@reboot fstrim -av
 @reboot restorecon -Rv /
 @reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
 6 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/smbshare/mnt/.duperemove/hashfile.db /var/smbshare/mnt

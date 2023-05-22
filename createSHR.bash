@@ -2,7 +2,7 @@
 
 apt update
 mkdir install-tmp
-mv createSMB.bash install-tmp
+mv createSHR.bash install-tmp
 cd install-tmp
 
 
@@ -21,9 +21,9 @@ combustion-ISO () {
   
   mkdir -p disk/combustion
   mv combustion.bash disk/combustion/script
-  mkisofs -l -o smbshare_combustion.iso -V combustion disk
+  mkisofs -l -o netshare_combustion.iso -V combustion disk
   
-  cp smbshare_combustion.iso /var/lib/pve/local-btrfs/template/iso
+  cp netshare_combustion.iso /var/lib/pve/local-btrfs/template/iso
 }
 
 
@@ -50,7 +50,7 @@ create-VM () {
   create-TEMPLATE
   vmID=100
   
-  qm clone $tpID $vmID --name smbshare --description "SMB Server VM"
+  qm clone $tpID $vmID --name netshare --description "NAS Server VM"
   qm set $vmID --cores 4 --memory 8192 --balloon 1024 --startup order=0,up=60
   
   qm set $vmID --virtio1 local-btrfs:80,cache=writeback,discard=on,iothread=1
@@ -63,7 +63,7 @@ create-VM () {
     let N++
   done
   
-  qm set $vmID --cdrom local-btrfs:iso/smbshare_combustion.iso
+  qm set $vmID --cdrom local-btrfs:iso/netshare_combustion.iso
   qm set $vmID --onboot 1
 }
 

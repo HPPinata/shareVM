@@ -58,10 +58,12 @@ cat <<'EOL' > /etc/samba/smb.conf
     comment = user data network share
     path = /var/share/mnt/net
     read only = no
-    browsable = yes
+    inherit owner = yes
+    inherit permissions = yes
 EOL
 
 echo '/var/share/mnt/vms  proxmox(rw,async,no_root_squash)' >> /etc/exports
+echo '/var/share/mnt/net  nextcloud(rw,async,no_root_squash)' >> /etc/exports
 
 mkdir /var/share/mnt/.duperemove
 semanage fcontext -at samba_share_t "/var/share/mnt/net(/.*)?"

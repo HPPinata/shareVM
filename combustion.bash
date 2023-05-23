@@ -7,7 +7,9 @@ echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
 mount /dev/vda4 /var
 
-zypper in -y bcache-tools cron duperemove nfs-kernel-server policycoreutils-python-utils samba zram-generator
+zypper in -y bcache-tools cron duperemove nfs-kernel-server \
+policycoreutils-python-utils samba snapper zram-generator
+
 systemctl enable smb
 systemctl enable nfs-server
 
@@ -46,6 +48,11 @@ mkdir -p /var/share/mnt
 mount /dev/bcache0 /var/share/mnt
 
 { echo; echo '/dev/bcache0  /var/share/mnt  btrfs  nofail  0  2'; } >> /etc/fstab
+
+snapper -c data create-config /var/share/mnt
+snapper -c data set-config "TIMELINE_CREATE=yes" "TIMELINE_CLEANUP=yes" \
+"TIMELINE_LIMIT_HOURLY=24" "TIMELINE_LIMIT_DAILY=7" "TIMELINE_LIMIT_WEEKLY=6" \
+"TIMELINE_LIMIT_MONTHLY=0" "TIMELINE_LIMIT_YEARLY=0"
 
 mkdir /var/share/mnt/vms
 mkdir /var/share/mnt/net

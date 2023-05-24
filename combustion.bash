@@ -63,7 +63,6 @@ cat <<'EOL' > /etc/samba/smb.conf
 EOL
 
 echo '/var/share/mnt/vms  proxmox(rw,async,no_root_squash)' >> /etc/exports
-echo '/var/share/mnt/net  nextcloud(rw,async,no_root_squash)' >> /etc/exports
 
 mkdir /var/share/mnt/.duperemove
 semanage fcontext -at samba_share_t "/var/share/mnt/net(/.*)?"

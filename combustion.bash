@@ -54,6 +54,8 @@ snapper -c data set-config "TIMELINE_CREATE=yes" "TIMELINE_CLEANUP=yes" \
 "TIMELINE_LIMIT_HOURLY=24" "TIMELINE_LIMIT_DAILY=7" "TIMELINE_LIMIT_WEEKLY=6" \
 "TIMELINE_LIMIT_MONTHLY=0" "TIMELINE_LIMIT_YEARLY=0"
 
+semanage fcontext -at snapperd_data_t '/var/share/mnt/.snapshots(/.*)?'
+
 mkdir /var/share/mnt/vms
 mkdir /var/share/mnt/net
 
@@ -72,7 +74,7 @@ EOL
 echo '/var/share/mnt/vms  proxmox(rw,async,no_root_squash)' >> /etc/exports
 
 mkdir /var/share/mnt/.duperemove
-semanage fcontext -at samba_share_t "/var/share/mnt/net(/.*)?"
+semanage fcontext -at samba_share_t '/var/share/mnt/net(/.*)?'
 
 cat <<'EOL' | crontab -
 SHELL=/bin/bash

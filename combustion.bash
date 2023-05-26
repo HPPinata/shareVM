@@ -82,7 +82,7 @@ BASH_ENV=/etc/profile
 
 @reboot fstrim -av
 @reboot restorecon -Rv /
-@reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
+#@reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
 0 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/share/mnt/.duperemove/hashfile.db /var/share/mnt
 0 5 1 * * rm -rf /var/share/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/share/mnt
 EOL

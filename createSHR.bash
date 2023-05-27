@@ -53,7 +53,7 @@ create-VM () {
   qm clone $tpID $vmID --name netshare --description "NAS Server VM"
   qm set $vmID --cores 4 --memory 8192 --balloon 1024 --startup order=0,up=60
   
-  qm set $vmID --virtio1 local-btrfs:80,discard=on,iothread=1
+  qm set $vmID --virtio1 /dev/nvme0n1,discard=on,iothread=1
   
   N=0
   pass=( /dev/sda /dev/sdb )

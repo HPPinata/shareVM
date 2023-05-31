@@ -52,13 +52,6 @@ mount /dev/bcache0 /var/share/mnt
 
 { echo; echo '/dev/bcache0  /var/share/mnt  btrfs  nofail  0  2'; } >> /etc/fstab
 
-snapper -c data create-config /var/share/mnt
-snapper -c data set-config "TIMELINE_CREATE=yes" "TIMELINE_CLEANUP=yes" \
-"TIMELINE_LIMIT_HOURLY=24" "TIMELINE_LIMIT_DAILY=7" "TIMELINE_LIMIT_WEEKLY=6" \
-"TIMELINE_LIMIT_MONTHLY=0" "TIMELINE_LIMIT_YEARLY=0"
-
-semanage fcontext -at snapperd_data_t '/var/share/mnt/.snapshots(/.*)?'
-
 mkdir /var/share/mnt/vms
 mkdir /var/share/mnt/net
 
@@ -73,13 +66,23 @@ cat <<'EOL' > /etc/samba/smb.conf
     inherit owner = yes
     inherit permissions = yes
 EOL
+semanage fcontext -at samba_share_t '/var/share/mnt/net(/.*)?'
 
 echo '/var/share/mnt/vms  proxmox(rw,async,no_root_squash)' >> /etc/exports
 
 mkdir /var/share/mnt/.duperemove
-semanage fcontext -at samba_share_t '/var/share/mnt/net(/.*)?'
 
-cat <<'EOL' | crontab -
+cat <<'EOL' > /var/share/snapper.bash
+#!/bin/bash
+
+snapper -c data create-config /var/share/mnt
+snapper -c data set-config "TIMELINE_CREATE=yes" "TIMELINE_CLEANUP=yes" \
+"TIMELINE_LIMIT_HOURLY=24" "TIMELINE_LIMIT_DAILY=7" "TIMELINE_LIMIT_WEEKLY=6" \
+"TIMELINE_LIMIT_MONTHLY=0" "TIMELINE_LIMIT_YEARLY=0"
+
+semanage fcontext -at snapperd_data_t '/var/share/mnt/.snapshots(/.*)?'
+
+cat <<'EOF' | crontab -
 SHELL=/bin/bash
 BASH_ENV=/etc/profile
 
@@ -88,4 +91,11 @@ BASH_ENV=/etc/profile
 #@reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
 0 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/share/mnt/.duperemove/hashfile.db /var/share/mnt
 0 5 1 * * rm -rf /var/share/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/share/mnt
+EOF
+EOL
+
+cat <<'EOL' | crontab -
+SHELL=/bin/bash
+BASH_ENV=/etc/profile
+@reboot bash /var/share/snapper.bash
 EOL

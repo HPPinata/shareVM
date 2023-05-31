@@ -5,6 +5,9 @@ echo 'root:HASHchangeME' | chpasswd -e
 echo 'netshare' > /etc/hostname
 echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
+timedatectl set-timezone Europe/Berlin
+localectl set-keymap de
+
 mount /dev/vda4 /var
 
 zypper in -y bcache-tools cron duperemove nfs-kernel-server \

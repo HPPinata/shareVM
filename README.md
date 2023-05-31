@@ -1,4 +1,4 @@
-# smbVM
+# nasVM
 This script was created to bring up NFS and SMB shares with bcache in Proxmox without having to pass through an entire drive controller. It creates a VM running openSUSE MicroOS to manage the exports.
 
 ## Usage:

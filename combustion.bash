@@ -25,7 +25,7 @@ echo 1 | tee /sys/fs/bcache/*/stop
 echo 1 | tee /sys/block/bcache*/bcache/stop
 sleep 1
 
-pass=( /dev/sda /dev/sdb )
+pass=$(ls /dev/sd*)
 wipefs -f -a ${pass[@]} /dev/vdb
 
 for blk in ${pass[@]}; do
@@ -37,11 +37,11 @@ sleep 1
 make-bcache -C /dev/vdb
 echo /dev/vdb > /sys/fs/bcache/register
 sleep 1
-bcache-super-show /dev/vdb | grep cset.uuid | awk -F ' ' {'print $2'} | tee /sys/block/bcache*/bcache/attach
 
+bcache-super-show /dev/vdb | grep cset.uuid | awk -F ' ' {'print $2'} | tee /sys/block/bcache*/bcache/attach
 echo writeback | tee /sys/block/bcache*/bcache/cache_mode
 
-wipefs -f -a /dev/bcache*
+wipefs -f -a $(ls /dev/bcache*)
 mkfs.btrfs -f -L data -m raid1 -d raid1 /dev/bcache*
 
 mkdir -p /var/share/mnt
@@ -76,9 +76,12 @@ timedatectl set-timezone Europe/Berlin
 localectl set-keymap de
 
 snapper -c data create-config /var/share/mnt
+
 snapper -c data set-config "TIMELINE_CREATE=yes" "TIMELINE_CLEANUP=yes" \
 "TIMELINE_LIMIT_HOURLY=24" "TIMELINE_LIMIT_DAILY=7" "TIMELINE_LIMIT_WEEKLY=6" \
 "TIMELINE_LIMIT_MONTHLY=0" "TIMELINE_LIMIT_YEARLY=0"
+
+snapper -c data setup-quota
 
 semanage fcontext -at snapperd_data_t '/var/share/mnt/.snapshots(/.*)?'
 

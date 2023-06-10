@@ -86,7 +86,6 @@ cat <<'EOF' | crontab -
 SHELL=/bin/bash
 BASH_ENV=/etc/profile
 
-@reboot fstrim -av
 @reboot restorecon -Rv /
 #@reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
 0 6 * * 1 duperemove -dhr -b 64K --dedupe-options=same --hash=xxhash --hashfile=/var/share/mnt/.duperemove/hashfile.db /var/share/mnt

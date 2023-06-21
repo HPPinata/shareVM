@@ -48,8 +48,8 @@ mount /dev/bcache0 /var/share/mnt
 
 { echo; echo '/dev/bcache0  /var/share/mnt  btrfs  nofail  0  2'; } >> /etc/fstab
 
-mkdir /var/share/mnt/vms
-mkdir /var/share/mnt/net
+btrfs subvolume create /var/share/mnt/vms
+btrfs subvolume create /var/share/mnt/net
 
 { echo 'SMBchangeME'; echo 'SMBchangeME'; } | smbpasswd -a root
 pdbedit -u root --set-nt-hash 'SMBchangeME'
@@ -74,7 +74,7 @@ cat <<'EOL' > /var/share/snapper.bash
 timedatectl set-timezone Europe/Berlin
 localectl set-keymap de
 
-snapper -c data create-config /var/share/mnt
+snapper -c data create-config /var/share/mnt/net
 snapper -c data set-config "TIMELINE_CREATE=yes" "TIMELINE_CLEANUP=yes" \
 "TIMELINE_LIMIT_HOURLY=24" "TIMELINE_LIMIT_DAILY=7" "TIMELINE_LIMIT_WEEKLY=6" \
 "TIMELINE_LIMIT_MONTHLY=0" "TIMELINE_LIMIT_YEARLY=0"

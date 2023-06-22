@@ -5,7 +5,7 @@ echo 'root:HASHchangeME' | chpasswd -e
 echo 'netshare' > /etc/hostname
 echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
-mount /dev/vda4 /var
+mount -o subvol=@/var /dev/vda3 /var
 
 zypper in -y bcache-tools cron duperemove nfs-kernel-server \
 policycoreutils-python-utils samba snapper zram-generator

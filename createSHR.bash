@@ -20,7 +20,7 @@ combustion-ISO () {
   linux_password="$(openssl passwd -6 $passvar)"
   sed -i "s+HASHchangeME+$linux_password+g" combustion.bash
 
-  smb_password="$(iconv -f ASCII -t UTF-16LE <(printf "$passvar") | openssl dgst -md4 -provider legacy)"
+  smb_password="$(iconv -f ASCII -t UTF-16LE <(printf $passvar) | openssl dgst -md4 -provider legacy | awk -F '= ' {'print $2'})"
   sed -i "s+SMBchangeME+$smb_password+g" combustion.bash
 
   mkdir -p disk/combustion

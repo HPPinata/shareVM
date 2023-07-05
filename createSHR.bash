@@ -8,17 +8,21 @@ cd install-tmp
 
 combustion-ISO () {
   wget https://raw.githubusercontent.com/HPPinata/shareVM/proxmox/combustion.bash
-  
-  while [ -z "$hashed_password" ]; do echo "VM password previously unset or input inconsistent."; \
-    hashed_password="$(python3 -c 'import crypt; import getpass; \
-    tin = getpass.getpass(); tin2 = getpass.getpass(); print(crypt.crypt(tin)) if (tin == tin2) else ""')"; done
-  sed -i "s+HASHchangeME+$hashed_password+g" combustion.bash
-  
-  while [ -z "$smb_password" ]; do echo "SMB password previously unset or input inconsistent."; \
-    smb_password="$(python3 -c 'import hashlib; import getpass; \
-    tin = getpass.getpass(); tin2 = getpass.getpass(); print(hashlib.new("md4", tin.encode("utf-16le")).hexdigest()) if (tin == tin2) else ""')"; done
+
+  local passvar=1; local passvar2=2
+  while [[ "$passvar" != "$passvar2" ]]; do echo "VM/SMB password previously unset or input inconsistent."; \
+    read -sp 'Password: ' passvar
+    echo
+    read -sp 'Confirm: ' passvar2
+    echo
+  done
+
+  linux_password="$(openssl passwd -6 $passvar)"
+  sed -i "s+HASHchangeME+$linux_password+g" combustion.bash
+
+  smb_password="$(iconv -f ASCII -t UTF-16LE <(printf "$passvar") | openssl dgst -md4 -provider legacy)"
   sed -i "s+SMBchangeME+$smb_password+g" combustion.bash
-  
+
   mkdir -p disk/combustion
   mv combustion.bash disk/combustion/script
   mkisofs -l -o netshare_combustion.iso -V combustion disk

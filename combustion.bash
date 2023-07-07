@@ -5,6 +5,8 @@ echo 'root:HASHchangeME' | chpasswd -e
 echo 'netshare' > /etc/hostname
 echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
+growpart /dev/vda 3
+btrfs filesystem resize max /
 mount -o subvol=@/var /dev/vda3 /var
 
 zypper in -y bcache-tools cron duperemove nfs-kernel-server \

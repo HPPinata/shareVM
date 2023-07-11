@@ -42,8 +42,8 @@ for blk in ${pass[@]}; do
   bcache set-cachemode $blk writeback
 done
 
-wipefs -f -a $(ls /dev/bcache*)
-mkfs.btrfs -f -L data -m raid1 -d raid1 /dev/bcache*
+wipefs -f -a $(find /dev/bcache* -maxdepth 0 -type b)
+mkfs.btrfs -f -L data -m raid1 -d raid1 $(find /dev/bcache* -maxdepth 0 -type b)
 
 mkdir -p /var/share/mnt
 mount /dev/bcache0 /var/share/mnt

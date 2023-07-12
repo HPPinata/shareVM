@@ -10,7 +10,7 @@ combustion-ISO () {
   wget https://raw.githubusercontent.com/HPPinata/shareVM/proxmox/combustion.bash
 
   local passvar=1; local passvar2=2
-  while [[ "$passvar" != "$passvar2" ]]; do echo "VM/SMB password previously unset or input inconsistent."; \
+  while [ "$passvar" != "$passvar2" ]; do echo "VM/SMB password previously unset or input inconsistent."; \
     read -sp 'Password: ' passvar
     echo
     read -sp 'Confirm: ' passvar2

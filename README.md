@@ -3,7 +3,7 @@ This script was created to bring up NFS and SMB shares with bcache in Proxmox wi
 
 ## Usage:
 ```
-wget https://raw.githubusercontent.com/HPPinata/shareVM/proxmox/createSHR.bash
+curl -O https://raw.githubusercontent.com/HPPinata/shareVM/proxmox/createSHR.bash
 cat createSHR.bash #look at the things you download
 bash createSHR.bash
 ```

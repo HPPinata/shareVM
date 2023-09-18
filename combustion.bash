@@ -39,8 +39,10 @@ for blk in ${pass[@]}; do
   bcache register $blk
   sleep 1
   bcache attach /dev/vdb $blk
-  bcache set-cachemode $blk writeback
 done
+
+echo writeback | tee /sys/block/bcache*/bcache/cache_mode
+echo 0 | tee /sys/block/bcache*/bcache/writeback_percent
 
 wipefs -f -a $(find /dev/bcache* -maxdepth 0 -type b)
 mkfs.btrfs -f -L data -m raid1 -d raid1 $(find /dev/bcache* -maxdepth 0 -type b)
@@ -50,7 +52,10 @@ mount /dev/bcache0 /var/share/mnt
 
 { echo; echo '/dev/bcache0  /var/share/mnt  btrfs  nofail  0  2'; } >> /etc/fstab
 
+fstrim -av
+
 btrfs subvolume create /var/share/mnt/vms
+btrfs subvolume create /var/share/mnt/vms/backup
 btrfs subvolume create /var/share/mnt/net
 
 { echo 'SMBchangeME'; echo 'SMBchangeME'; } | smbpasswd -a root
@@ -90,6 +95,7 @@ BASH_ENV=/etc/profile
 
 @reboot restorecon -Rv /
 #@reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
+@reboot echo 0 | tee /sys/block/bcache*/bcache/writeback_percent
 0 6 * * 1 duperemove -dhr --dedupe-options=same,partial --hashfile=/var/share/mnt/.duperemove/hashfile.db /var/share/mnt
 0 5 1 * * rm -rf /var/share/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/share/mnt
 0 5 20 * * btrfs scrub start /var/share/mnt

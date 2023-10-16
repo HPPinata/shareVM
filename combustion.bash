@@ -98,8 +98,8 @@ BASH_ENV=/etc/profile
 #@reboot echo 0 | tee /sys/block/bcache*/bcache/sequential_cutoff
 @reboot echo 0 | tee /sys/block/bcache*/bcache/writeback_percent
 0 6 * * 1 duperemove -dhr --dedupe-options=same,partial --hashfile=/var/share/mnt/.duperemove/hashfile.db /var/share/mnt
-0 5 1 * * rm -rf /var/share/mnt/.duperemove/hashfile.db && btrfs filesystem defragment -r /var/share/mnt
-0 5 20 * * btrfs scrub start /var/share/mnt
+0 5 1 * * rm -rf /var/share/mnt/.duperemove/hashfile.db && btrfs balance start -musage=50 -dusage=50 /var/share/mnt
+0 5 15 * * btrfs scrub start /var/share/mnt
 EOF
 EOL
 chmod +x /var/share/snapper.bash

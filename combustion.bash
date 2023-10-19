@@ -41,7 +41,7 @@ for blk in ${drive[@]}; do
   bcache attach /dev/vdb $blk
 done
 
-echo writeback | tee /sys/block/bcache*/bcache/cache_mode
+echo writethrough | tee /sys/block/bcache*/bcache/cache_mode
 echo 0 | tee /sys/block/bcache*/bcache/writeback_percent
 
 mkfs.btrfs -f -L data -m raid1 -d raid1 $(find /dev/bcache* -maxdepth 0 -type b)

@@ -23,13 +23,18 @@ zram-size = ram
 compression-algorithm = zstd
 EOL
 
-pass=$(ls /dev/sd*)
+drive=$(ls /dev/sd*)
+cache=( /dev/vdb /dev/vdc )
 
-bcache make -C /dev/vdb
-bcache register /dev/vdb
+pvcreate -ff ${cache[@]}
+vgcreate cache ${cache[@]}
+lvcreate -n nvme -l 100%PV --type raid1 --wipesignatures y cache
+
+bcache make -C /dev/cache/nvme
+bcache register /dev/cache/nvme
 sleep 1
 
-for blk in ${pass[@]}; do
+for blk in ${drive[@]}; do
   bcache make -B $blk
   bcache register $blk
   sleep 1

@@ -1,14 +1,15 @@
 #!/bin/bash
 # combustion: network
 
+growpart /dev/vda 3
+btrfs filesystem resize max /
+mount -o subvol=@/var /dev/vda3 /var
+mount -o subvol=@/home /dev/vda3 /home
+
 echo 'root:HASHchangeME' | chpasswd -e
 useradd admin
 echo 'admin:HASHchangeME' | chpasswd -e
 echo 'netshare' > /etc/hostname
-
-growpart /dev/vda 3
-btrfs filesystem resize max /
-mount -o subvol=@/var /dev/vda3 /var
 
 zypper in -y bcache-tools cron duperemove nfs-kernel-server \
 policycoreutils-python-utils samba snapper zram-generator

@@ -7,9 +7,8 @@ mount -o subvol=@/var /dev/vda3 /var
 mount -o subvol=@/home /dev/vda3 /home
 
 echo 'root:HASHchangeME' | chpasswd -e
-useradd admin
-echo 'admin:HASHchangeME' | chpasswd -e
 echo 'netshare' > /etc/hostname
+echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/root.conf
 
 zypper in -y bcache-tools cron duperemove nfs-kernel-server \
 policycoreutils-python-utils samba snapper zram-generator

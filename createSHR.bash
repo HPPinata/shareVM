@@ -79,7 +79,7 @@ create-VM () {
 cleanup () {
   cd .. && rm -rf install-tmp
   
-  until apt install -y pv; do sleep 5; done
+  apt install -y pv
   yes | pv -SpeL1 -s 300 > /dev/null
   apt remove -y pv && apt autoremove -y
   
